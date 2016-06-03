@@ -17,6 +17,7 @@
 * `requestAuthorization`: ask some or all permissions up front
 * `readDateOfBirth`: formatted as yyyy-MM-dd
 * `readGender`: output = male|female|unknown
+* `readBloodType`: output = A+|A-|B+|B-|AB+|AB-|O+|O-|unknown
 * `readWeight`: pass in unit (g=gram, kg=kilogram, oz=ounce, lb=pound, st=stone)
 * `saveWeight`: pass in unit (g=gram, kg=kilogram, oz=ounce, lb=pound, st=stone) and amount
 * `readHeight`: pass in unit (mm=millimeter, cm=centimeter, m=meter, in=inch, ft=foot)
@@ -24,6 +25,7 @@
 * `saveWorkout`
 * `findWorkouts`: no params yet, so this will return all workouts ever of any type
 * `querySampleType`
+* `querySampleTypeAggregated`
 * `sumQuantityType`
 * `monitorSampleType`
 * `saveQuantitySample`
@@ -39,3 +41,17 @@
 ### Tips
 * Make sure your app id has the 'HealthKit' entitlement when this plugin is installed (see iOS dev center).
 * Also, make sure your app and AppStore description complies with these Apple review guidelines: https://developer.apple.com/app-store/review/guidelines/#healthkit
+
+### Installation
+
+Using the Cordova CLI?
+
+```
+cordova plugin add com.telerik.plugins.healthkit
+```
+
+Using PhoneGap Build?
+
+```xml
+<plugin name="com.telerik.plugins.healthkit" source="npm" />
+```

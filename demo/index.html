@@ -45,7 +45,11 @@
     &nbsp;&nbsp;
     <button onclick="readGender()">Read gender</button>
     <br/><br/>
+    <button onclick="readBloodType()">Read bloodtype</button>
+    <br/><br/>
     <button onclick="querySampleType()">Query Sample</button>
+    <br/><br/>
+    <button onclick="querySampleTypeAggregated()">Query Sample Aggregated</button>
     <br/><br/>
     <button onclick="saveHeight()">Save Height</button>
     &nbsp;&nbsp;
@@ -63,7 +67,9 @@
     <br/><br/>
     <button onclick="sumQuantityType()">Sum quantity type</button>
     <br/><br/>
-    <button onclick="saveQuantitySample()">Save quantity sample</button>
+    <button onclick="saveQuantitySample_StepCount()">Save quantity sample (step count)</button>
+    <br/><br/>
+    <button onclick="saveQuantitySample_Energy()">Save quantity sample (energy)</button>
     <br/><br/>
     <button onclick="saveCorrelation()">Save correlation</button>
     <br/><br/>
@@ -109,7 +115,7 @@
         {
           'readTypes': ['HKCharacteristicTypeIdentifierDateOfBirth',
             'HKCategoryTypeIdentifierSleepAnalysis', 'HKQuantityTypeIdentifierActiveEnergyBurned', 'HKQuantityTypeIdentifierHeight'],
-          'writeTypes': ['HKQuantityTypeIdentifierDietaryEnergyConsumed','HKQuantityTypeIdentifierDietaryFatTotal','HKQuantityTypeIdentifierStepCount','HKQuantityTypeIdentifierActiveEnergyBurned', 'HKQuantityTypeIdentifierHeight', 'HKQuantityTypeIdentifierDistanceCycling']
+          'writeTypes': ['HKQuantityTypeIdentifierDietaryEnergyConsumed', 'HKQuantityTypeIdentifierDietaryFatTotal', 'HKQuantityTypeIdentifierStepCount', 'HKQuantityTypeIdentifierActiveEnergyBurned', 'HKQuantityTypeIdentifierHeight', 'HKQuantityTypeIdentifierDistanceCycling']
         },
         callback,
         callback
@@ -140,6 +146,13 @@
     );
   }
 
+  function readBloodType() {
+    window.plugins.healthkit.readBloodType(
+        callback,
+        callback
+    );
+  }
+
   function saveWeight() {
     window.plugins.healthkit.saveWeight({
           'requestReadPermission': false, // use if your app doesn't need to read
@@ -155,7 +168,7 @@
   function readWeight() {
     window.plugins.healthkit.readWeight(
         {
-          'requestWritePermission': false, // use if your app doesn't need to write
+          'requestWritePermission': true, // use if your app doesn't need to write
           'unit': 'kg'
         },
         callback,
@@ -223,6 +236,20 @@
     );
   }
 
+  function querySampleTypeAggregated() {
+    window.plugins.healthkit.querySampleTypeAggregated(
+        {
+          'startDate': new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000), // three days ago
+          'endDate': new Date(), // now
+          'aggregation': 'week', // 'hour', 'week', 'year' or 'day', default 'day'
+          'sampleType': 'HKQuantityTypeIdentifierStepCount', // any HKQuantityType
+          'unit': 'count' // make sure this is compatible with the sampleType
+        },
+        callback,
+        callback
+    );
+  }
+
   // this is work in progress
   function monitorSampleType() {
     window.plugins.healthkit.monitorSampleType(
@@ -230,11 +257,8 @@
           'sampleType': 'HKCategoryTypeIdentifierSleepAnalysis'
         },
         function (value) {
-          // note: setInterval would make more sense here
-          setTimeout(function () {
-            // lets see if sleep analysis was updated
-            alert("Sleep: " + value);
-          }, 2000)
+          // this gets called when a new sample is available (can then be fetched by a different function)
+          console.log("Sleep (webview): " + value);
         },
         callback
     );
@@ -254,7 +278,7 @@
     );
   }
 
-  function saveQuantitySample() {
+  function saveQuantitySample_StepCount() {
     window.plugins.healthkit.saveQuantitySample(
         {
           'startDate': new Date(new Date().getTime() - 24 * 60 * 60 * 1000), // a day ago
@@ -270,26 +294,41 @@
     );
   }
 
+  function saveQuantitySample_Energy() {
+    window.plugins.healthkit.saveQuantitySample(
+        {
+          'startDate': new Date(), // now
+          'endDate': new Date(), // now
+          'sampleType': 'HKQuantityTypeIdentifierDietaryEnergyConsumed', // make sure you request write access beforehand
+          'unit': 'kcal',
+          'amount': 64
+        },
+        function (value) {
+          alert("Success running saveQuantitySample, result: " + value);
+        },
+        callback
+    );
+  }
+
+
   function saveCorrelation() {
     window.plugins.healthkit.saveCorrelation(
         {
           'startDate': new Date(), // now
           'endDate': new Date(), // now
-          'metadata': {
-            'MyKey': 12345
-          },
+          'metadata': {'a': 'b'},
           'correlationType': 'HKCorrelationTypeIdentifierFood', // don't request write permission for this
           'samples': [
             {
-              'startDate': Math.round(new Date().getTime()/1000), // make sure to pass these as timestamps
-              'endDate': Math.round(new Date().getTime()/1000),
+              'startDate': new Date(),
+              'endDate': new Date(),
               'sampleType': 'HKQuantityTypeIdentifierDietaryEnergyConsumed', // make sure you request write access beforehand
               'unit': 'kcal',
               'amount': 500
             },
             {
-              'startDate': Math.round(new Date().getTime()/1000),
-              'endDate': Math.round(new Date().getTime()/1000),
+              'startDate': new Date(),
+              'endDate': new Date(),
               'sampleType': 'HKQuantityTypeIdentifierDietaryFatTotal', // make sure you request write access beforehand
               'unit': 'g',
               'amount': 25
